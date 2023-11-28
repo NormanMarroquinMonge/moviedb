@@ -110,7 +110,7 @@ public class user {
         }
 
         //Once everything is successful a greeting is given
-        System.out.println("Welcome " + username + "! Here are your options for the database...");
+        System.out.println("Welcome " + username + "! Here are your options for the database..." );
     }//End of accessAccount
 
 
