@@ -42,21 +42,20 @@ public class Main {
                 "[3] Exit the program.");
     }//End of Intro method
 
-
-    /*
-    After the user has successfully made an account or has successfully logged in then the options for the database
-    are introduced.
-     */
     public void dbOptionList(){
         System.out.println("\n[1] Retrieve all movies in the database.\n" +
-                "[2] add a movie to the database\n" +
-                "[3] Retrieve a Top 10 list.\n" +
-                "[4] Add a movie into the database.\n" +
+                "[2] Add a movie into the database.\n" +
+                "[3] Retrieve all Top 10 list.\n" +
+                "[4] Retrieve all movies in a Top 10 list.\n" +
                 "[5] Add a Streaming platform.\n" +
                 "[6] Add a Top 10 list.\n" +
                 "[7] Exit Program");
     }
 
+    /*
+    After the user has successfully made an account or has successfully logged in then the options for the database
+    are introduced.
+     */
     public void dbOptions(Scanner console, user u, Connection connection) throws SQLException {
 
         dbOptionList();
@@ -68,14 +67,16 @@ public class Main {
                 dbOptionList();
                 result = console.nextInt();
             } else if (result == 2) {
-                u.addMovie(connection, console);
+                u.addMovie(connection);
                 dbOptionList();
                 result = console.nextInt();
             } else if (result == 3) {
+                u.retrieveLists(connection);
                 dbOptionList();
                 result = console.nextInt();
 
             } else if (result == 4) {
+                u.retrieveMoviesFromList(connection, console);
                 dbOptionList();
                 result = console.nextInt();
 

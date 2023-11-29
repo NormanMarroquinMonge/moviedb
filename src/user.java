@@ -1,3 +1,6 @@
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Map;
 import java.sql.*;
@@ -64,6 +67,13 @@ public class user {
         System.out.println("Please create a password");
         String password = console.next();
 
+        //Hash the password before account insertion
+        try {
+            password = hash(password);
+        }catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        }
+
         //Creates a new account with the given username and password.
         account a = new account(password, username, userID);
 
@@ -87,6 +97,12 @@ public class user {
         System.out.println("Please enter your password");
         String password = console.next();
 
+        try {
+            password = hash(password);
+        }catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        }
+
         //Creates a set from the values (username) of the hashtable "info".
         Set<String> usernames = info.keySet();
 
@@ -97,6 +113,12 @@ public class user {
             username = console.next();
             System.out.println("Please enter your password");
             password = console.next();
+
+            try {
+                password = hash(password);
+            }catch (NoSuchAlgorithmException e){
+                e.printStackTrace();
+            }
         }
 
         //Once username is successfully found, the password provided is compared to the password associated with the username.
@@ -107,6 +129,12 @@ public class user {
             username = console.next();
             System.out.println("Please enter your password");
             password = console.next();
+
+            try {
+                password = hash(password);
+            }catch (NoSuchAlgorithmException e){
+                e.printStackTrace();
+            }
         }
 
         //Once everything is successful a greeting is given
@@ -141,7 +169,8 @@ public class user {
     /*
     Allows a user to insert a new movie entry into the database.
      */
-    public void addMovie(Connection connection, Scanner console) throws SQLException {
+    public void addMovie(Connection connection) throws SQLException {
+        Scanner console = new Scanner(System.in);
 
         //Blank Statement created.
         Statement statement = connection.createStatement();
@@ -149,25 +178,60 @@ public class user {
         //The movie_id is from the database is randomly generated.
         int movieID = r.nextInt(200 - 100 + 1) + 100;
         System.out.println("Enter the movies name:");
-        String movieName = console.next();
+        String movieName = console.nextLine();
         System.out.println("Enter the movies genre:");
-        String genre = console.next();
+        String genre = console.nextLine();
         System.out.println("Enter the movies date in the format YYYY-MM-DD:");
-        String movieDate = console.next();
+        String movieDate = console.nextLine();
         System.out.println("Enter the movies imdb rating:");
-        String movieIMDB = console.next();
+        String movieIMDB = console.nextLine();
         System.out.println("Enter the movies age rating:");
-        String ageRating = console.next();
+        String ageRating = console.nextLine();
         System.out.println("Enter the movies trailer URL: ");
-        String trailer = console.next();
+        String trailer = console.nextLine();
 
         //Statement stores all the attributes provided by the user into the database.
         statement.executeUpdate("INSERT INTO movie(movie_id, movie_name, genre, production_date, imdb, age_rating, trailer) " +
                 "VALUES('" + movieID + "','" + movieName + "','" + genre + "','"+ movieDate + "','" + movieIMDB + "','" + ageRating + "','" + trailer + "')");
     }
 
+    public void retrieveLists(Connection connection) throws SQLException{
+
+        //Blank statement is created
+        Statement statement = connection.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT p.platform_name, t.list_id, list_date FROM streaming_platform p JOIN top_10_list t ON p.platform_id = t.platform_id;");
+
+        while(rs.next()){
+            System.out.println(rs.getObject("p.platform_name") + " "
+                    + rs.getObject("t.list_id"));
+        }
+    }
+
+    public void retrieveMoviesFromList(Connection connection, Scanner console) throws SQLException {
+        //Blank statement is created
+        Statement statement = connection.createStatement();
+
+        System.out.println("What Streaming platform would you like to see? Type the ID number of the list. \n");
+        retrieveLists(connection);
+        String list_id = console.next();
+        ResultSet rs = statement.executeQuery("SELECT m.movie_name FROM movie m JOIN appears a ON m.movie_id = a.movie_id WHERE a.list_id = " + list_id + ";");
+        while(rs.next()){
+            System.out.println(rs.getObject("m.movie_name"));
+        }
+    }
+
     //Retrieves the randomly generated user_ID so that it can be stored into the database.
     public int getUserID(){
         return userID;
+    }
+
+    public String hash(String password) throws NoSuchAlgorithmException {
+
+        MessageDigest encoder = MessageDigest.getInstance("SHA-256");//gets the digest from security class
+        byte[] encodedhash = encoder.digest(password.getBytes(StandardCharsets.UTF_8));//Digests the bytes and puts them in array
+
+        String hashPass = new String(encodedhash, StandardCharsets.UTF_8);//creates a new string by condensing array of bytes
+
+        return hashPass;
     }
 }
