@@ -20,80 +20,97 @@ public class Main {
         m.addAccountsIntoMap(info, connection);
 
 
-        m.Intro();
-        int response = console.nextInt();
-        if (response == 1) {
-            u.createUserandAccount(console, connection, info);
-            m.dbOptions(console, u, connection);
-        } else if (response == 2) {
-            u.AccessAccount(info, console);
-            m.dbOptions(console, u, connection);
-        } else if (response == 3) {
-            System.out.println("Goodbye");
-            System.exit(0);
-        }
+        m.intro();
+        m.introOptions(console, u, connection, info, m);
+
+
     }//End of main Method
 
 
-    public void Intro() {
+    public void intro() {
         System.out.println("Welcome to the movie database program. Here are a list of commands you can try");
         System.out.println("[1] New User? Register and create an account.\n" +
                 "[2] Already registered? Login into your account.\n" +
                 "[3] Exit the program.");
     }//End of Intro method
 
-    public void dbOptionList(){
+    public void introOptions(Scanner console, user u, Connection connection, Map<String, String> info, Main m) throws SQLException {
+        int response = console.nextInt();
+
+        if (response == 1) {
+            int account_ID = u.createUserandAccount(console, connection, info);
+            m.dbOptions(console, u, connection, account_ID, info, m);
+        } else if (response == 2) {
+            int account_ID = u.AccessAccount(connection, info, console);
+            m.dbOptions(console, u, connection, account_ID, info, m);
+        } else if (response == 3) {
+            System.out.println("Goodbye");
+            System.exit(0);
+        }
+    }
+
+    public void dbIntro() {
         System.out.println("\n[1] Retrieve all movies in the database.\n" +
                 "[2] Add a movie into the database.\n" +
                 "[3] Retrieve all Top 10 list.\n" +
                 "[4] Retrieve all movies in a Top 10 list.\n" +
-                "[5] Add a Streaming platform.\n" +
-                "[6] Add a Top 10 list.\n" +
-                "[7] Exit Program");
+                "[5] View your movie ratings.\n" +
+                "[6] Rate a movie.\n" +
+                "[7] Main Menu");
     }
 
     /*
     After the user has successfully made an account or has successfully logged in then the options for the database
     are introduced.
      */
-    public void dbOptions(Scanner console, user u, Connection connection) throws SQLException {
+    public void dbOptions(Scanner console, user u, Connection connection, int account_ID, Map<String, String> info, Main m) throws SQLException {
 
-        dbOptionList();
+
+        dbIntro();
+
         int result = console.nextInt();
 
-        while(result != 7) {
+        while (result != 7) {
             if (result == 1) {
                 u.retrieveMovies(connection);
-                dbOptionList();
+                dbIntro();
                 result = console.nextInt();
             } else if (result == 2) {
                 u.addMovie(connection);
-                dbOptionList();
+                dbIntro();
                 result = console.nextInt();
             } else if (result == 3) {
                 u.retrieveLists(connection);
-                dbOptionList();
+                dbIntro();
                 result = console.nextInt();
 
             } else if (result == 4) {
                 u.retrieveMoviesFromList(connection, console);
-                dbOptionList();
+                dbIntro();
                 result = console.nextInt();
 
             } else if (result == 5) {
-                dbOptionList();
+                u.checkPersonalRatings(connection, account_ID);
+                dbIntro();
                 result = console.nextInt();
 
             } else if (result == 6) {
-                dbOptionList();
+
+                u.createRating(connection, console, account_ID);
+                dbIntro();
                 result = console.nextInt();
 
-            } else if (result == 7) {
-                System.exit(0);
             }
         }
-    }//End of databaseOptions
 
+        System.out.println("[1] New User? Register and create an account.\n" +
+                "[2] Already registered? Login into your account.\n" +
+                "[3] Exit the program.");
+
+
+        introOptions(console, u, connection, info, m);
+
+    }//End of databaseOptions
 
     /*
     This method adds any existing accounts found in the "accounts" table from the database into the
