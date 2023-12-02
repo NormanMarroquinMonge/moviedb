@@ -52,7 +52,7 @@ public class Main {
     public void dbIntro() {
         System.out.println("\n[1] Retrieve all movies in the database.\n" +
                 "[2] Add a movie into the database.\n" +
-                "[3] Retrieve all Top 10 list.\n" +
+                "[3] Add a platform.\n" +
                 "[4] Retrieve all movies in a Top 10 list.\n" +
                 "[5] View your movie ratings.\n" +
                 "[6] Rate a movie.\n" +
@@ -65,49 +65,25 @@ public class Main {
      */
     public void dbOptions(Scanner console, user u, Connection connection, int account_ID, Map<String, String> info, Main m) throws SQLException {
 
-
         dbIntro();
-
         int result = console.nextInt();
 
-        while (result != 7) {
-            if (result == 1) {
-                u.retrieveMovies(connection);
-                dbIntro();
-                result = console.nextInt();
-            } else if (result == 2) {
-                u.addMovie(connection);
-                dbIntro();
-                result = console.nextInt();
-            } else if (result == 3) {
-                u.retrieveLists(connection);
-                dbIntro();
-                result = console.nextInt();
-
-            } else if (result == 4) {
-                u.retrieveMoviesFromList(connection, console);
-                dbIntro();
-                result = console.nextInt();
-
-            } else if (result == 5) {
-                u.checkPersonalRatings(connection, account_ID);
-                dbIntro();
-                result = console.nextInt();
-
-            } else if (result == 6) {
-
-                u.createRating(connection, console, account_ID);
-                dbIntro();
-                result = console.nextInt();
-
+        while (!(result  >= 7)) {
+            switch (result) {
+                case 1 -> u.retrieveMovies(connection);
+                case 2 -> u.addMovie(connection);
+                case 3 -> u.addPlatform(connection, console);
+                case 4 -> u.retrieveMoviesFromList(connection, console);
+                case 5 -> u.checkPersonalRatings(connection, account_ID);
+                case 6 -> u.createRating(connection, console, account_ID);
             }
+            dbIntro();
+            result = console.nextInt();
         }
 
         System.out.println("[1] New User? Register and create an account.\n" +
                 "[2] Already registered? Login into your account.\n" +
                 "[3] Exit the program.");
-
-
         introOptions(console, u, connection, info, m);
 
     }//End of databaseOptions
@@ -130,4 +106,5 @@ public class Main {
             info.put(rs1.getString("username"), rs1.getString("password"));
         }
     }//end of addAccountsIntoMap
+
 }

@@ -41,7 +41,8 @@ public class user {
         user u = new user(fName, lName);
 
         //Uses the statement created earlier to register the user into the database
-        statement.executeUpdate("INSERT INTO user(user_id, first_name, last_name) VALUES ('" + u.getUserID() + "','" + fName + "','" + lName + "')");
+        statement.executeUpdate("INSERT INTO user(user_id, first_name, last_name) VALUES ('" + u.getUserID()
+                + "','" + fName + "','" + lName + "')");
 
 
         account a = createAccountandStore(console, connection,u.getUserID(), info);
@@ -79,7 +80,8 @@ public class user {
         account a = new account(password, username, userID);
 
         //Stores the account information within the database.
-        statement.executeUpdate("INSERT INTO account(account_id, password, username, user_id) VALUES ('" + a.getAccountID() + "','" + password + "','" + username + "','" + userID+ "')");
+        statement.executeUpdate("INSERT INTO account(account_id, password, username, user_id) VALUES" +
+                " ('" + a.getAccountID() + "','" + password + "','" + username + "','" + userID+ "')");
 
         //Turns the username to lowercase. Only the password is case-sensitive.
         info.put(username.toLowerCase(), password);
@@ -95,23 +97,18 @@ public class user {
     to match the username stored in the hashtable.
      */
     public Integer AccessAccount(Connection connection, Map<String,String> info, Scanner console) throws SQLException {
-
         Statement statement = connection.createStatement();
-
         System.out.println("Please type in your username");
         String username = console.next().toLowerCase();
         System.out.println("Please enter your password");
         String password = console.next();
-
         try {
             password = hash(password);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-
         //Creates a set from the values (username) of the hashtable "info".
         Set<String> usernames = info.keySet();
-
         //Tells user to re-enter credentials if the username provided is not found within the set.
         while (!usernames.contains(username)) {
             System.out.println("Incorrect username or password. Please try again.");
@@ -119,14 +116,12 @@ public class user {
             username = console.next();
             System.out.println("Please enter your password");
             password = console.next();
-
             try {
                 password = hash(password);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
-
         //Once username is successfully found, the password provided is compared to the password associated with the username.
         //If the password doesn't match then credentials must be entered all over again.
         while (!password.equals(info.get(username))) {
@@ -135,23 +130,19 @@ public class user {
             username = console.next();
             System.out.println("Please enter your password");
             password = console.next();
-
             try {
                 password = hash(password);
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }
-
         //Once everything is successful a greeting is given
         System.out.println("Welcome " + username + "! Here are your options for the database...");
         ResultSet rs = statement.executeQuery("SELECT a.account_id FROM account a WHERE a.username = '" + username + "';");
-
         int account_ID = 0;
         while (rs.next()) {
             account_ID = (int) rs.getObject("a.account_id");
         }
-
         return account_ID;
     }//End of accessAccount
 
@@ -206,7 +197,8 @@ public class user {
 
         //Statement stores all the attributes provided by the user into the database.
         statement.executeUpdate("INSERT INTO movie(movie_id, movie_name, genre, production_date, imdb, age_rating, trailer) " +
-                "VALUES('" + movieID + "','" + movieName + "','" + genre + "','"+ movieDate + "','" + movieIMDB + "','" + ageRating + "','" + trailer + "')");
+                "VALUES('" + movieID + "','" + movieName + "','" + genre + "','"+ movieDate + "','" + movieIMDB + "','" + ageRating +
+                "','" + trailer + "')");
     }//End of addMovie
 
     public void retrieveLists(Connection connection) throws SQLException{
@@ -228,7 +220,8 @@ public class user {
         System.out.println("What Streaming platform would you like to see? Type the ID number of the list. \n");
         retrieveLists(connection);
         String list_id = console.next();
-        ResultSet rs = statement.executeQuery("SELECT m.movie_name FROM movie m JOIN appears a ON m.movie_id = a.movie_id WHERE a.list_id = " + list_id + ";");
+        ResultSet rs = statement.executeQuery("SELECT m.movie_name FROM movie m JOIN appears a ON" +
+                " m.movie_id = a.movie_id WHERE a.list_id = " + list_id + ";");
         while(rs.next()){
             System.out.println(rs.getObject("m.movie_name"));
         }
@@ -277,11 +270,31 @@ public class user {
 
         int nameColumnWidth = 20;
 
-        ResultSet rs1 = statement.executeQuery("SELECT m.movie_name, r.account_rating FROM rating r JOIN movie m WHERE r.account_id = '" + account_ID + "' AND m.movie_ID = r.movie_id;");
+        ResultSet rs1 = statement.executeQuery("SELECT m.movie_name, r.account_rating FROM rating " +
+                "r JOIN movie m WHERE r.account_id = '" + account_ID + "' AND m.movie_ID = r.movie_id;");
         while(rs1.next()){
-            System.out.printf("%-" + nameColumnWidth + "s%.1f%n", rs1.getObject("m.movie_name"), rs1.getObject("r.account_rating"));
+            System.out.printf("%-" + nameColumnWidth + "s%.1f%n", rs1.getObject("m.movie_name"),
+                    rs1.getObject("r.account_rating"));
         }
 
     }//End of checkPersonalRatings
 
+    public void addPlatform(Connection connection, Scanner console) throws SQLException {
+
+        Statement statement = connection.createStatement();
+
+        int platformID = r.nextInt(100);
+
+                System.out.println("Enter the name of the platform you want to add:");
+        String platform = console.next();
+
+        System.out.println("Enter the monthly pricing of the platform:");
+        String month = console.next();
+
+        System.out.println("Enter the yearly pricing of the platform:");
+        String year = console.next();
+
+        statement.executeUpdate("INSERT INTO streaming_platform(platform_id, platform_name, price_month, Price_year) "
+                + "VALUES('" + platformID + "','" + platform + "','" + month + "','" + year + "')");
+    }
 }
